@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>رمضان كويز - لعبة الأسئلة الدينية</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- شاشة البداية -->
+        <div id="start-screen" class="screen active">
+            <div class="ramadan-decoration">
+                <div class="moon">🌙</div>
+                <div class="lantern">🏮</div>
+            </div>
+            <h1>🌙 رمضان كويز 🕌</h1>
+            <p>اختبر معلوماتك الدينية مع الأصدقاء</p>
+            
+            <div class="game-modes">
+                <button onclick="showPlayerInput('single')" class="ramadan-btn mode-btn" id="mode-single">
+                    <i class="fas fa-user"></i> لعبة فردية
+                </button>
+                <button onclick="showPlayerInput('teams')" class="ramadan-btn mode-btn" id="mode-teams">
+                    <i class="fas fa-users"></i> لعبة فريقين
+                </button>
+            </div>
+        </div>
+
+        <!-- شاشة إدخال الأسماء -->
+        <div id="player-input-screen" class="screen">
+            <div class="header-with-back">
+                <button onclick="backToStart()" class="back-btn">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h2 id="input-title"></h2>
+                <button onclick="openSettings()" class="settings-btn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+            
+            <div id="single-input" class="input-mode hidden">
+                <div class="settings-summary">
+                    <span><i class="fas fa-users"></i> <span id="display-player-count">4</span> لاعبين</span>
+                    <span><i class="fas fa-question-circle"></i> <span id="display-questions-count">10</span> أسئلة</span>
+                </div>
+                <div id="players-inputs-container" class="players-input"></div>
+            </div>
+
+            <div id="teams-input" class="input-mode hidden">
+                <div class="settings-summary">
+                    <span><i class="fas fa-question-circle"></i> <span id="display-questions-count-teams">10</span> أسئلة</span>
+                </div>
+                <div class="teams-container">
+                    <div class="team-card team1-card">
+                        <div class="team-header">
+                            <i class="fas fa-star"></i>
+                            <h3>الفريق الأول</h3>
+                        </div>
+                        <input type="text" id="team1-name" placeholder="اسم الفريق الأول" class="ramadan-input" value="فريق الأصدقاء">
+                        <div class="team-players">
+                            <input type="text" id="team1-player1" placeholder="اللاعب 1" class="ramadan-input" value="لاعب 1">
+                            <input type="text" id="team1-player2" placeholder="اللاعب 2" class="ramadan-input" value="لاعب 2">
+                            <input type="text" id="team1-player3" placeholder="اللاعب 3 (اختياري)" class="ramadan-input">
+                            <input type="text" id="team1-player4" placeholder="اللاعب 4 (اختياري)" class="ramadan-input">
+                        </div>
+                    </div>
+                    
+                    <div class="team-card team2-card">
+                        <div class="team-header">
+                            <i class="fas fa-star"></i>
+                            <h3>الفريق الثاني</h3>
+                        </div>
+                        <input type="text" id="team2-name" placeholder="اسم الفريق الثاني" class="ramadan-input" value="فريق العائلة">
+                        <div class="team-players">
+                            <input type="text" id="team2-player1" placeholder="اللاعب 1" class="ramadan-input" value="لاعب 3">
+                            <input type="text" id="team2-player2" placeholder="اللاعب 2" class="ramadan-input" value="لاعب 4">
+                            <input type="text" id="team2-player3" placeholder="اللاعب 3 (اختياري)" class="ramadan-input">
+                            <input type="text" id="team2-player4" placeholder="اللاعب 4 (اختياري)" class="ramadan-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="start-btn ramadan-btn" id="start-game-btn">
+                <i class="fas fa-play"></i> ابدأ اللعبة
+            </button>
+        </div>
+
+        <!-- شاشة اللعبة الرئيسية -->
+        <div id="game-screen" class="screen">
+            <!-- شريط علوي -->
+            <div class="game-top-bar">
+                <button onclick="backToStart()" class="exit-btn" title="خروج من اللعبة">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-question-circle"></i>
+                        <span id="questions-counter">1/10</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-user-clock"></i>
+                        <span id="currentPlayerShort">-</span>
+                    </div>
+                </div>
+                <div class="spacer"></div>
+            </div>
+            
+            <!-- عجلة اللاعبين - كروية بدون سهم -->
+            <div class="wheel-container">
+                <div class="wheel" id="playerWheel">
+                    <div class="wheel-center">
+                        <div class="wheel-center-inner">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="wheel-segments" id="wheelSegments"></div>
+                </div>
+                <button onclick="spinWheel()" class="spin-btn ramadan-btn" id="spinButton">
+                    <i class="fas fa-sync-alt"></i> لف العجلة
+                </button>
+            </div>
+
+            <!-- معلومات اللعبة -->
+            <div class="game-info">
+                <div id="current-turn" class="turn-indicator">
+                    <i class="fas fa-user-clock"></i> دور: <span id="currentPlayer">-</span>
+                </div>
+                <div id="score-display" class="scores"></div>
+            </div>
+
+            <!-- منطقة السؤال -->
+            <div class="question-area">
+                <div id="question-display" class="question-box">
+                    <i class="fas fa-question-circle"></i>
+                    اضغط على لف العجلة لبدء اللعبة
+                </div>
+
+                <div class="answer-section hidden" id="answerSection">
+                    <div class="team-buttons hidden" id="teamButtons"></div>
+                    
+                    <button onclick="showAnswer()" class="show-answer-btn ramadan-btn" id="showAnswerBtn">
+                        <i class="fas fa-eye"></i> أظهر الإجابة
+                    </button>
+                    
+                    <div id="answer-box" class="answer-box hidden">
+                        <div class="answer-content">
+                            <i class="fas fa-check-circle"></i>
+                            <p id="correct-answer"></p>
+                        </div>
+                        <div class="answer-controls">
+                            <button onclick="markAnswer(true)" class="correct-btn" id="correctBtn">
+                                <i class="fas fa-check"></i> صح
+                            </button>
+                            <button onclick="markAnswer(false)" class="wrong-btn" id="wrongBtn">
+                                <i class="fas fa-times"></i> خطأ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- النتائج النهائية -->
+            <div id="results" class="results hidden">
+                <div class="results-header">
+                    <i class="fas fa-trophy"></i>
+                    <h2>النتيجة النهائية</h2>
+                </div>
+                <div id="final-scores" class="final-scores"></div>
+                <button onclick="resetGame()" class="reset-btn ramadan-btn">
+                    <i class="fas fa-redo-alt"></i> لعب مرة أخرى
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة الإعدادات -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>إعدادات اللعبة</h3>
+                <button onclick="closeSettings()" class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <label><i class="fas fa-users"></i> عدد اللاعبين:</label>
+                    <select id="modal-player-count" class="ramadan-select"></select>
+                </div>
+                <div class="setting-item">
+                    <label><i class="fas fa-question-circle"></i> عدد الأسئلة:</label>
+                    <select id="modal-questions-count" class="ramadan-select"></select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveSettings()" class="ramadan-btn">
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
